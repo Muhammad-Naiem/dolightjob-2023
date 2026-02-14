@@ -1,260 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DNA Double Helix</title>
-  <style>
-    :root {
-      --bg: #070a12;
-      --fg: #eaf2ff;
-      --muted: rgba(234,242,255,.16);
-      --muted2: rgba(234,242,255,.10);
-      --r: 110px;       /* helix radius */
-      --h: 520px;       /* visible height */
-      --n: 44;          /* number of rungs */
-      --speed: 6.2s;    /* animation speed */
-      --dot: 7px;       /* dot size */
-      --line: 2px;      /* line thickness */
-      --tilt: 18deg;    /* perspective tilt */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D DNA Double Helix Animation</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            perspective: 800px;
+        }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(1200px 700px at 50% 40%, #0b1430 0%, var(--bg) 55%, #04050a 100%);
-      color: var(--fg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
+        .helix {
+            position: relative;
+            width: 100px;
+            height: 400px;
+            animation: rotateHelix 5s linear infinite;
+        }
 
-    .stage {
-      width: 420px;
-      height: calc(var(--h) + 120px);
-      display: grid;
-      place-items: center;
-      perspective: 900px;
-      filter: drop-shadow(0 18px 40px rgba(0,0,0,.55));
-    }
+        .line {
+            position: absolute;
+            width: 10px;
+            height: 100%;
+            background: linear-gradient(to bottom, #4CAF50, #81C784);
+            border-radius: 5px;
+        }
 
-    .helix {
-      position: relative;
-      width: 360px;
-      height: var(--h);
-      transform-style: preserve-3d;
-      transform: rotateX(var(--tilt));
-    }
+        .dot {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #f44336;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
 
-    /* whole-object subtle spin */
-    .helix::before {
-      content: "";
-      position: absolute;
-      inset: -40px -40px;
-      border-radius: 40px;
-      background: radial-gradient(closest-side, rgba(255,255,255,.07), transparent 60%);
-      transform: translateZ(-220px);
-      pointer-events: none;
-    }
+        @keyframes rotateHelix {
+            from {
+                transform: rotateY(0);
+            }
+            to {
+                transform: rotateY(360deg);
+            }
+        }
 
-    .rung {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 0;
-      height: 0;
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
+        .line:nth-child(1) { left: 20px; }
+        .line:nth-child(2) { left: 40px; }
+        .line:nth-child(3) { left: 60px; }
+        .line:nth-child(4) { left: 80px; }
 
-    .dot {
-      position: absolute;
-      width: var(--dot);
-      height: var(--dot);
-      border-radius: 50%;
-      background: var(--fg);
-      transform: translate3d(0,0,0);
-      filter: blur(.0px);
-      box-shadow:
-        0 0 18px rgba(234,242,255,.35),
-        0 0 1px rgba(234,242,255,.6);
-      will-change: transform, opacity, filter;
-    }
+        .dot:nth-child(5) { top: 0; left: 20px; }
+        .dot:nth-child(6) { top: 25px; left: 40px; }
+        .dot:nth-child(7) { top: 50px; left: 60px; }
+        .dot:nth-child(8) { top: 75px; left: 80px; }
+        .dot:nth-child(9) { top: 100px; left: 20px; }
+        .dot:nth-child(10) { top: 125px; left: 40px; }
+        .dot:nth-child(11) { top: 150px; left: 60px; }
+        .dot:nth-child(12) { top: 175px; left: 80px; }
+        .dot:nth-child(13) { top: 200px; left: 20px; }
+        .dot:nth-child(14) { top: 225px; left: 40px; }
+        .dot:nth-child(15) { top: 250px; left: 60px; }
+        .dot:nth-child(16) { top: 275px; left: 80px; }
+        .dot:nth-child(17) { top: 300px; left: 20px; }
+        .dot:nth-child(18) { top: 325px; left: 40px; }
+        .dot:nth-child(19) { top: 350px; left: 60px; }
+        .dot:nth-child(20) { top: 375px; left: 80px; }
 
-    .dot.a { background: #8ad7ff; box-shadow: 0 0 18px rgba(138,215,255,.45), 0 0 1px rgba(138,215,255,.7); }
-    .dot.b { background: #c6a7ff; box-shadow: 0 0 18px rgba(198,167,255,.45), 0 0 1px rgba(198,167,255,.7); }
+        .controls {
+            margin-top: 20px;
+        }
 
-    .bridge {
-      position: absolute;
-      height: var(--line);
-      background: linear-gradient(90deg, rgba(138,215,255,.0), rgba(234,242,255,.55), rgba(198,167,255,.0));
-      border-radius: 999px;
-      transform-origin: 0 50%;
-      opacity: .85;
-      will-change: transform, opacity, filter;
-      filter: blur(.0px);
-    }
-
-    /* optional center spine hint */
-    .spine {
-      position: absolute;
-      left: 50%;
-      top: 0;
-      width: 2px;
-      height: 100%;
-      background: linear-gradient(to bottom, transparent, var(--muted), transparent);
-      transform: translateX(-50%) translateZ(-60px);
-      opacity: .45;
-      pointer-events: none;
-    }
-
-    .label {
-      margin-top: 14px;
-      font-size: 12px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: rgba(234,242,255,.7);
-    }
-
-    @media (max-width: 520px) {
-      .stage { width: 100vw; }
-      .helix { width: 92vw; }
-      :root { --r: 90px; --h: 460px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .rung { transition: none !important; }
-    }
-  </style>
+        .speed-slider {
+            width: 300px;
+        }
+    </style>
 </head>
 <body>
-  <div class="stage">
-    <div class="helix" id="helix" aria-label="Rotating DNA double helix">
-      <div class="spine"></div>
+    <div class="helix" id="helix">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
     </div>
-    <div class="label">DNA Double Helix</div>
-  </div>
+    <div class="controls">
+        <label for="speed">Animation Speed (seconds):</label>
+        <input type="range" id="speed" class="speed-slider" min="1" max="20" value="5">
+    </div>
 
-  <script>
-    // Pure DOM + requestAnimationFrame (no libraries)
-    const root = document.documentElement;
-    const helix = document.getElementById("helix");
+    <script>
+        const helix = document.getElementById('helix');
+        const speedSlider = document.getElementById('speed');
 
-    // Read CSS custom props
-    const cssNum = (name) => parseFloat(getComputedStyle(root).getPropertyValue(name));
-    const N = Math.round(cssNum("--n"));
-    const R = cssNum("--r");
-    const H = cssNum("--h");
-    const speedSec = cssNum("--speed");
-
-    // Helix parameters
-    const TWO_PI = Math.PI * 2;
-    const pitch = H / N;             // vertical spacing
-    const omega = TWO_PI / speedSec; // radians per second (cycle)
-    const depth = 180;               // z depth range for perspective feel
-
-    // Build rungs
-    const rungs = [];
-    for (let i = 0; i < N; i++) {
-      const rung = document.createElement("div");
-      rung.className = "rung";
-
-      const a = document.createElement("div");
-      a.className = "dot a";
-
-      const b = document.createElement("div");
-      b.className = "dot b";
-
-      const bridge = document.createElement("div");
-      bridge.className = "bridge";
-
-      rung.appendChild(bridge);
-      rung.appendChild(a);
-      rung.appendChild(b);
-      helix.appendChild(rung);
-
-      rungs.push({ rung, a, b, bridge, i });
-    }
-
-    // Helpers
-    const clamp01 = (x) => Math.max(0, Math.min(1, x));
-
-    // Animate
-    let t0 = performance.now();
-    function frame(now) {
-      const t = (now - t0) / 1000;
-
-      // Slight whole-helix yaw for extra 3D look (optional)
-      const yaw = 10 * Math.sin(t * 0.35);
-      helix.style.transform = `rotateX(var(--tilt)) rotateY(${yaw}deg)`;
-
-      for (const obj of rungs) {
-        const i = obj.i;
-
-        // Vertical movement: scroll rungs upward; wrap with modulo
-        // y in [-H/2, H/2]
-        const y = ((i * pitch - (t * (H / speedSec))) % H) - H / 2;
-
-        // Phase advances with time; add offset per rung to create twist
-        const phase = (i * 0.42) + (t * omega * 1.6); // twist density & speed
-        const ca = Math.cos(phase);
-        const sa = Math.sin(phase);
-
-        // Two strands are opposite each other (phase + pi)
-        const x1 =  R * ca;
-        const z1 =  depth * sa;
-
-        const x2 = -R * ca;
-        const z2 = -depth * sa;
-
-        // Perspective cues: nearer points larger/brighter, farther smaller/dimmer
-        const near1 = clamp01((z1 + depth) / (2 * depth));
-        const near2 = clamp01((z2 + depth) / (2 * depth));
-
-        const s1 = 0.65 + near1 * 0.55;        // size scale
-        const s2 = 0.65 + near2 * 0.55;
-
-        const o1 = 0.35 + near1 * 0.65;        // opacity
-        const o2 = 0.35 + near2 * 0.65;
-
-        // Place rung group at center and y position
-        obj.rung.style.transform = `translate3d(0, ${y}px, 0)`;
-
-        // Dots
-        obj.a.style.transform = `translate3d(${x1}px, 0, ${z1}px) scale(${s1})`;
-        obj.b.style.transform = `translate3d(${x2}px, 0, ${z2}px) scale(${s2})`;
-        obj.a.style.opacity = o1.toFixed(3);
-        obj.b.style.opacity = o2.toFixed(3);
-
-        // Bridge: connect the two points.
-        // We draw a line at the average z (so it "sits" between them)
-        // and rotate/scale along X based on distance.
-        const dx = x2 - x1;
-        const length = Math.abs(dx);
-        const midX = (x1 + x2) / 2;
-        const midZ = (z1 + z2) / 2;
-
-        obj.bridge.style.width = `${length}px`;
-        obj.bridge.style.transform =
-          `translate3d(${midX - length / 2}px, 0, ${midZ}px) rotateY(0deg)`;
-
-        // Bridge fades when both ends are far (gives depth)
-        const bridgeNear = (near1 + near2) / 2;
-        obj.bridge.style.opacity = (0.25 + bridgeNear * 0.7).toFixed(3);
-      }
-
-      requestAnimationFrame(frame);
-    }
-
-    // Reduced motion: render a static pose
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduce.matches) {
-      // One render at t=0 without rAF
-      frame(t0);
-    } else {
-      requestAnimationFrame(frame);
-    }
-  </script>
+        // Update animation speed based on slider input
+        speedSlider.addEventListener('input', function() {
+            const speed = speedSlider.value;
+            helix.style.animationDuration = speed + 's';
+        });
+    </script>
 </body>
 </html>
